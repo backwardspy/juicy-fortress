@@ -1,13 +1,13 @@
 package stages
 
 import (
-	"errors"
 	"fmt"
-	"io"
 	"io/fs"
 	"os"
 	"path"
 	"strings"
+
+	cp "github.com/otiai10/copy"
 )
 
 func decapitate(filePath string) string {
@@ -30,7 +30,7 @@ func cacheDir() (string, error) {
 	}
 
 	cacheDir = path.Join(cacheDir, "juicy-fortress")
-	if err := os.Mkdir(cacheDir, 0755); !errors.Is(err, os.ErrExist) {
+	if err := os.MkdirAll(cacheDir, 0755); err != nil {
 		return "", fmt.Errorf("failed to make cache dir (%v): %v", cacheDir, err)
 	}
 
@@ -41,44 +41,20 @@ type copyWrapper struct {
 	err error
 }
 
-func (cw *copyWrapper) Copy(from string, to string) {
+func newCopyWrapper() copyWrapper {
+	return copyWrapper{
+		err: nil,
+	}
+}
+
+func (cw *copyWrapper) Copy(from string, to string, verbose bool) {
 	if cw.err != nil {
 		return
 	}
 
-	fmt.Printf("copying %v to %v\n", from, to)
-
-	info, err := os.Stat(from)
-	if err != nil {
-		cw.err = err
-		return
+	if verbose {
+        fmt.Printf("copy: %v to %v\n", from, to)
 	}
 
-	if !info.Mode().IsRegular() {
-		cw.err = fmt.Errorf("%s is not a regular file", from)
-		return
-	}
-
-	fromFile, err := os.Open(from)
-	if err != nil {
-		cw.err = err
-		return
-	}
-	defer fromFile.Close()
-
-	fromState, err := fromFile.Stat()
-	if err != nil {
-		cw.err = err
-		return
-	}
-
-	toFile, err := os.OpenFile(to, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, fromState.Mode())
-	if err != nil {
-		cw.err = err
-		return
-	}
-	defer toFile.Close()
-
-	_, err = io.Copy(toFile, fromFile)
-	cw.err = err
+	cp.Copy(from, to)
 }

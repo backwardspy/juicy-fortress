@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/charmbracelet/lipgloss v0.6.0
 	github.com/mholt/archiver/v4 v4.0.0-alpha.7
+	github.com/otiai10/copy v1.9.0
 )
 
 require (
@@ -23,6 +24,6 @@ require (
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/therootcompany/xz v1.0.1 // indirect
 	github.com/ulikunitz/xz v0.5.10 // indirect
-	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	golang.org/x/text v0.3.7 // indirect
 )

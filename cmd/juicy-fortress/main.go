@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -19,28 +20,46 @@ func exit(format string, args ...any) {
 	os.Exit(1)
 }
 
+type args struct {
+    installDir string
+    verbose bool
+}
+
+func parseArgs() args {
+    args := args{}
+    flag.StringVar(&args.installDir, "installDir", "dwarffortress", "dir to install into")
+    flag.BoolVar(&args.verbose, "verbose", false, "print more info")
+    flag.Parse()
+    return args
+}
+
 func main() {
-	installDir := "dwarffortress"
+    args := parseArgs()
 
 	fmt.Println(infoStyle.Render("downloading Dwarf Fortress"))
-	if err := stages.DownloadDwarfFortress(installDir); err != nil {
+	if err := stages.DownloadDwarfFortress(args.installDir, args.verbose); err != nil {
 		exit("failed to download Dwarf Fortress: %v", err)
 	}
 
 	fmt.Println(infoStyle.Render("installing DFHack mod"))
-	if err := stages.InstallDFHack(installDir); err != nil {
+	if err := stages.InstallDFHack(args.installDir, args.verbose); err != nil {
 		exit("failed to install DFHack: %v", err)
 	}
 
 	fmt.Println(infoStyle.Render("installing TWBT plugin"))
-	if err := stages.InstallTWBT(installDir); err != nil {
+	if err := stages.InstallTWBT(args.installDir, args.verbose); err != nil {
 		exit("failed to install TWBT: %v", err)
 	}
 
 	fmt.Println(infoStyle.Render("installing Spacefox tileset"))
-	if err := stages.InstallSpacefox(installDir); err != nil {
+	if err := stages.InstallSpacefox(args.installDir, args.verbose); err != nil {
 		exit("failed to install Spacefox: %v", err)
 	}
+
+    fmt.Println(infoStyle.Render("applying patches"))
+    if err := stages.ApplyPatches(args.installDir, args.verbose); err != nil {
+        exit("failed to apply patches: %v", err)
+    }
 
 	fmt.Println(successStyle.Render("all done!"))
 	fmt.Println("enter the \"dwarffortress\" folder and run \"dfhack\" to start Dwarf Fortress.")

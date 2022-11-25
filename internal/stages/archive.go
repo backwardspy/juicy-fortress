@@ -10,7 +10,7 @@ import (
 	"github.com/mholt/archiver/v4"
 )
 
-func extract(source string, destination string, decapitatePaths bool) error {
+func extract(source string, destination string, decapitatePaths bool, verbose bool) error {
 	file, err := os.Open(source)
 	if err != nil {
 		return fmt.Errorf("failed to open %v: %v", source, err)
@@ -36,7 +36,6 @@ func extract(source string, destination string, decapitatePaths bool) error {
 
 			// create symlinks
 			if f.LinkTarget != "" {
-				fmt.Printf("%v is a link to %v\n", f.NameInArchive, f.LinkTarget)
 				os.Symlink(f.LinkTarget, outputPath)
 				return nil
 			}
@@ -47,7 +46,9 @@ func extract(source string, destination string, decapitatePaths bool) error {
 			}
 			defer reader.Close()
 
-			fmt.Printf("extract: %v -> %v\n", f.NameInArchive, outputPath)
+			if verbose {
+				fmt.Printf("extract: %v -> %v\n", f.NameInArchive, outputPath)
+			}
 
 			writer, err := safeCreateFile(outputPath, f.Mode())
 			if err != nil {
