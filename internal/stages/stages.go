@@ -41,7 +41,7 @@ func DownloadDwarfFortress(dfdir string, verbose bool) error {
 	}
 
 	fmt.Printf("extracting %v into %v...\n", archive, dfdir)
-	err = extract(archive, dfdir, true, verbose)
+	err = extract(archive, dfdir, platform.DwarfFortressDecapitate, verbose)
 	if err != nil {
 		return fmt.Errorf("failed to extract archive %v: %v", archive, err)
 	}
